@@ -52,15 +52,15 @@ EOM
 		;;
 
 	autoconf)
-		if hash pacman >/dev/null 2>&1; then
+		if hash checkupdates >/dev/null 2>&1; then
 			echo yes
 		else
-			echo "no (pacman not found)"
+			echo "no (checkupdates not found)"
 		fi
 		;;
 
 	*)
-		updates="$(pacman -Qu)"
+		updates="$(checkupdates)"
 		exitcode=$?
 		if [ "$exitcode" = 0 ]; then
 			if [ -n "$updates" ]; then
@@ -69,7 +69,7 @@ EOM
 			else
 				echo "updates.value 0"
 			fi
-		elif [ "$exitcode" = 1 ]; then
+		elif [ "$exitcode" = 2 ]; then
 			echo "updates.value 0"
 		else
 			echo "updates.value U"
