@@ -47,7 +47,7 @@ graph_vlabel updates
 graph_category security
 updates.label updates
 updates.info Current number of pending updates
-updates.warning :0
+updates.warning :10
 EOM
 		;;
 
