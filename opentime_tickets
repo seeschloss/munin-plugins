@@ -1,0 +1,72 @@
+#!/bin/sh
+# -*- sh -*-
+
+: <<=cut
+
+=head1 NAME
+
+opentime_tickets - Plugin pour monitorer la quantité de tickets Opentime
+
+=head1 APPLICABLE SYSTEMS
+
+Les utilisateurs d'Opentime
+
+=head1 CONFIGURATION
+
+Il faut une clé d'API et un compte Opentime
+
+=head1 INTERPRETATION
+
+Le plugin dessine une ligne correspondant à la quantité de tickets en cours + à faire
+
+=head1 MAGIC MARKERS
+
+  #%# family=auto
+  #%# capabilities=autoconf
+
+=head1 VERSION
+
+  1.0.0
+
+=head1 AUTHOR
+
+mv@seos.fr
+
+=head1 LICENSE
+
+GPLv2
+
+=cut
+
+case $1 in
+	config)
+		cat <<'EOM'
+graph_args --base 1000 -l 0
+graph_title Tickets Opentime
+graph_vlabel tickets
+graph_category noparking
+tickets.label tickets
+tickets.info Nombre de tickets en cours + à faire
+EOM
+		;;
+
+	*)
+		DATE=$(date -d "tomorrow 00:00:00" +%s)
+		USER_ID=${opentime_userid:-}
+		API_KEY=${opentime_apikey:-}
+		URL=${opentime_apiurl:-}
+		QUERY="{requests(users_id: ${USER_ID}, statuses: [2, 8], start_max: ${DATE}) {id}}"
+
+		RESULT=$(curl --silent -XPOST -d "api_key=${API_KEY}" -d "query=${QUERY}" "${URL}" | jq '.data.requests | length')
+		exitcode=$?
+		if [ "$exitcode" = 0 ]; then
+			echo "tickets.value ${RESULT}"
+		else
+			echo "tickets.value U"
+		fi
+		;;
+esac
+
+exit 0
+
+
